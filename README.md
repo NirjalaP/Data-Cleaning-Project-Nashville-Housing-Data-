@@ -1,70 +1,86 @@
-Executive Summary
+ **Background**
 
-This project focuses on cleaning and transforming the Nashville Housing dataset using T-SQL in SQL Server. The original dataset contained inconsistent formats, missing values, duplicate records, and unstructured address fields.
+The Nashville Housing dataset represents historical residential property sales across Nashville, Tennessee. Like many operational real-estate datasets, the data was collected over time from multiple sources and systems, resulting in inconsistencies, missing values, duplicate records, and unstructured fields.
 
-The objective was to convert the raw dataset into a clean, structured, and analysis-ready table suitable for reporting, visualization, and real estate market analysis.
+For analysts and business stakeholders, raw housing data in this state makes it difficult to perform reliable reporting, geographic analysis, and trend forecasting.
+
+To support future analytics and business intelligence initiatives, a comprehensive SQL data-cleaning workflow was developed to transform the dataset into a trusted, analysis-ready data source.
+
+**Executive Summary**
+
+This project focuses on cleaning and standardizing a real-world housing dataset using T-SQL in SQL Server.
+
+The transformation pipeline resolves key data quality issues by:
+
+Standardizing date formats
+
+Filling missing property addresses
+
+Splitting unstructured address fields into structured columns
+
+Standardizing categorical values
+
+Identifying duplicate records
+
+Removing redundant columns
+
+The final output is a clean, structured dataset ready for dashboards, reporting, and advanced analytics.
 
 Business Problem
 
-Raw real-estate datasets often contain inconsistencies that make analysis unreliable or time-consuming. In this dataset:
+Raw datasets often require significant preparation before analysis can begin. The Nashville Housing dataset presented several challenges:
 
-• Dates were stored as text instead of proper date format
-• Property addresses were missing in several records
-• Address fields were stored as a single string instead of structured columns
-• Boolean/categorical values were inconsistent (Y/N vs Yes/No)
-• Duplicate property sales existed
-• Several columns were redundant after transformation
+• Sale dates stored as text instead of proper date format
+• Missing property addresses across multiple records
+• Address data stored in single text fields instead of structured columns
+• Inconsistent categorical values (Y/N vs Yes/No)
+• Duplicate sales records causing potential double counting
+• Redundant columns remaining after transformation
 
-Without cleaning, analysts could:
+Without cleaning, these issues could lead to:
 
-Misinterpret time trends
+Inaccurate trend analysis
 
-Double-count property sales
+Inefficient geographic reporting
 
-Struggle with geographic analysis
+Misleading business insights
 
-Spend unnecessary time preparing data instead of analyzing it
+Significant analyst time spent on manual preparation
 
-The business need was to create a reliable, analytics-ready dataset.
+The business need was to create a reliable and analytics-ready housing dataset.
 
-Methodology
-1️⃣ Standardize Date Format
+**Methodology**
+1. Date Standardization
 
-Created a new column SaleDateConverted and converted the original SaleDate into SQL DATE format.
+A new column SaleDateConverted was created and populated by converting the original text-based sale date into a true SQL DATE format.
 
-This enables:
+This enables accurate time-based analysis and reporting.
 
-Time series analysis
+2. Missing Address Imputation
 
-Monthly/quarterly grouping
+Property addresses missing from certain records were populated using a self-join on ParcelID, ensuring properties with shared identifiers inherit valid address data.
 
-Accurate filtering and reporting
+This step improved data completeness and reliability.
 
-2️⃣ Populate Missing Property Addresses
+3. Property Address Structuring
 
-Used a self-join on ParcelID to fill missing PropertyAddress values from other rows representing the same property.
+The PropertyAddress column was split into:
 
-This step reduced null values and preserved data completeness.
+PropertySplitAddress — Street address
 
-3️⃣ Split Property Address into Structured Columns
+PropertySplitCity — City
 
-Extracted:
-
-Street Address → PropertySplitAddress
-
-City → PropertySplitCity
-
-Used string parsing functions:
+Using string parsing functions:
 
 SUBSTRING()
 
 CHARINDEX()
 
-This enables location-based analysis and easier filtering.
+This transformation enables location-based filtering and aggregation.
 
-4️⃣ Split Owner Address into Address, City, State
+4. Owner Address Structuring
 
-Created:
+The OwnerAddress field was decomposed into:
 
 OwnerSplitAddress
 
@@ -72,27 +88,28 @@ OwnerSplitCity
 
 OwnerSplitState
 
-Used:
+Using:
 
 REPLACE()
 
 PARSENAME()
 
-This converts an unstructured text field into structured geographic attributes.
+This converts unstructured text into structured geographic attributes.
 
-5️⃣ Standardize Categorical Values
+5. Categorical Value Standardization
 
-Converted inconsistent values in SoldAsVacant:
+The SoldAsVacant column contained inconsistent values.
+Values were standardized:
 
 Y → Yes
 
 N → No
 
-Ensures clean grouping and reporting.
+This ensures clean grouping and reporting.
 
-6️⃣ Identify Duplicate Records
+6. Duplicate Detection
 
-Used a CTE + ROW_NUMBER() window function to detect duplicates based on:
+Duplicate records were identified using a CTE with ROW_NUMBER() based on:
 
 ParcelID
 
@@ -104,11 +121,11 @@ SaleDate
 
 LegalReference
 
-This prevents double-counting in future analytics.
+This prevents double-counting in future analytics workflows.
 
-7️⃣ Remove Redundant Columns
+7. Removal of Redundant Columns
 
-Dropped columns no longer needed after transformation:
+After transformation, unused columns were removed:
 
 OwnerAddress
 
@@ -118,56 +135,61 @@ PropertyAddress
 
 SaleDate
 
-This produces a cleaner, more efficient dataset.
+This produced a lean and analysis-ready table.
 
 Skills Demonstrated
 
-SQL Server • T-SQL
+SQL Server / T-SQL
+
 Data Cleaning & Transformation
+
 Data Quality Improvement
+
 Window Functions (ROW_NUMBER)
+
 Self-Joins for Data Imputation
+
 String Parsing Functions
+
 Schema Modification (ALTER / DROP)
-Analytical Data Preparation
 
-Result / Solution
+Preparing Data for BI & Analytics
 
-The dataset was transformed from a raw operational dataset into an analysis-ready table:
+**Results & Solution
+**
+The dataset was transformed from a raw operational dataset into a trusted analytical dataset:
 
-✔ Standardized date format
-✔ Missing addresses populated
-✔ Addresses converted into structured columns
-✔ Categorical values standardized
+✔ Date fields standardized
+✔ Missing values resolved
+✔ Address fields structured
+✔ Categorical values cleaned
 ✔ Duplicate records identified
 ✔ Redundant columns removed
 
-The final dataset is now ready for:
+The data is now ready for:
 
 Power BI / Tableau dashboards
 
-Real estate trend analysis
+Real estate market analysis
 
 Predictive modeling
 
-Geographic analysis
+Geographic insights
 
-Next Steps
+**Next Steps**
 
-Future improvements that could extend this project:
+Future enhancements could include:
 
-• Create a data quality dashboard to monitor nulls & duplicates
-• Build a real estate price trend dashboard (Power BI / Tableau)
-• Add ZIP code / geospatial enrichment
-• Automate the cleaning pipeline using SQL jobs
-• Build staging and production tables for ETL workflow
+• Building a real estate price trend dashboard
+• Adding geospatial enrichment (ZIP codes, lat/long)
+• Automating the cleaning pipeline using SQL jobs
+• Implementing staging and production tables for ETL workflows
+• Creating a data quality monitoring dashboard
 
-Impact
-
-This cleaning process:
+**Impact**
 
 📉 Reduced data inconsistencies
-📊 Improved data reliability for analytics
-⏱ Saved analyst time spent on data preparation
+📊 Improved reliability of analytics
+⏱ Reduced analyst data preparation time
 📍 Enabled geographic and time-based insights
-📈 Created a strong foundation for BI and advanced analytics
+📈 Established a foundation for business intelligence and advanced analytics
